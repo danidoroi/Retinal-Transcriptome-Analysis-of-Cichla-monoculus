@@ -1,0 +1,15 @@
+File_Name	Sample_Name	Treatment
+1_CM1_S33_L006_R1_001_trim_R1.fq.gz	CM1F	clear
+1_CM1_S33_L006_R2_001_trim_R2.fq.gz	CM1R	clear
+2_CM4_S34_L006_R1_001_trim_R1.fq.gz	CM4F	clear
+2_CM4_S34_L006_R2_001_trim_R2.fq.gz	CM4R	clear
+3_CM27_S35_L006_R1_001_trim_R1.fq.gz	CM27F	murky
+3_CM27_S35_L006_R2_001_trim_R2.fq.gz	CM27R	murky
+4_CM28_S36_L006_R1_001_trim_R1.fq.gz	CM28F	murky
+4_CM28_S36_L006_R2_001_trim_R2.fq.gz	CM28R	murky
+5_CM29_S37_L006_R1_001_trim_R1.fq.gz	CM29F	murky
+5_CM29_S37_L006_R2_001_trim_R2.fq.gz	CM29R	murky
+6_CM16_S38_L006_R1_001_trim_R1.fq.gz	CM16F	clear
+6_CM16_S38_L006_R2_001_trim_R2.fq.gz	CM16R	clear
+7_CM17_S39_L006_R1_001_trim_R1.fq.gz	CM17F	clear
+7_CM17_S39_L006_R2_001_trim_R2.fq.gz	CM17R	clear

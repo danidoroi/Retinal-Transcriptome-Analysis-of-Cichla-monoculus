@@ -3,4 +3,5 @@
 ## CM1, CM4, CM16 & CM17 are samples from clear waters of Lake Gatun
 ## CM27, CM28, CM29 are samples from murky waters of Lake Gatun
 
-## 
+## to load the data 
+file_data <- read.table("/Users/danido/Documents/709_R_Ecology/Project/target_file.txt", header=F)

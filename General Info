@@ -12,3 +12,24 @@ biocLite("DESeq2")
 
 ## to load the data 
 file_data <- read.table("/Users/danido/Documents/709_R_Ecology/Project/target_file.txt", header=F)
+
+
+#### 
+### to run R in the command line in deepthought2, it then recognizes R code as imput
+###
+###
+
+#!/bin/bash
+#SBATCH --ntasks=20
+#SBATCH -N 1
+#SBATCH -t 4000:00
+#SBATCH --mem=127000
+
+cd /lustre/cichlid-labs/example_submission_scripts
+
+/lustre/cichlid-labs/sw/R-3.1.0/bin/Rscript --restore example.R
+
+### 
+## to align the reads to the reference genome with tophat
+
+

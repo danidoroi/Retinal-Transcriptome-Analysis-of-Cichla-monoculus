@@ -11,6 +11,9 @@ source("https://bioconductor.org/biocLite.R")
 biocLite("DESeq2")
 
 ## to load the data 
+
+
+
 file_data <- read.table("/Users/danido/Documents/709_R_Ecology/Project/target_file.txt", header=F)
 
 
@@ -31,5 +34,20 @@ cd /lustre/cichlid-labs/example_submission_scripts
 
 ### 
 ## to align the reads to the reference genome with tophat
+
+#### LOCATION OF TRIMMED FILES IN MY DEEPTHOUGHT2 REPOSITORY
+### /lustre/descoba2/Cichla/Trimm
+
+####
+####
+#### Index of the reference genome
+#### location of genome ##  cd /lustre/cichlid-labs/reference_assemblies/O_niloticus_UMD1/O_niloticus_UMD1.fa
+#### reference of the   ##  cd /lustre/cichlid-labs/reference_assemblies/O_niloticus_UMD1/XXXXXXXX.gff3
+
+library(systemPipeR)
+args <- systemArgs(sysma="./param/tophat.param", mytargets="targetsPE.txt")
+moduleload(modules(args)) # Skip if a module system is not available
+system("bowtie2-build ./data/tair10.fasta ./data/tair10.fasta")
+
 
 

@@ -118,4 +118,49 @@ urlbase="http://myserver.edu/~username/", urlfile="IGVurl.txt"
 
 library(GenomicFeatures)
 txdb <- makeTxDbFromGFF(file="data/tair10.gff", format="gff", dataSource="TAIR", organism="Oreochromis_niloticus"
+saveDb(txdb, file="O_niloticus_UMD1.sqlite")
+
+txdb <- loadDb("O_niloticus_UMD1.sqlite")
+eByg <- exonsBy(txdb, by="gene")
+eByg[1:2]
+
+### READ COUNTING WITH SUMMARIZEOVERLAPS
+
+txdb <- loadDb("O_niloticus_UMD1.sqlite")
+eByg <- exonsBy(txdb, by=c("gene"))
+bfl <- BamFileList(outpaths(args), yieldSize=50000, index=character())
+counteByg <- summarizeOverlaps(eByg, bfl, mode="Union", ignore.strand=TRUE, inter.feature=FALSE, singleEnd=FALSE) # Note: for strand-specific RNA-Seq set 'ignore.strand=FALSE' and for PE data set 'singleEnd=FALSE'
+countDFeByg <- assays(counteByg)$counts
+countDFeByg[1:4,1:18]
+
+write.table(countDFeByg, "results/countDFeByg.xls", col.names=NA, quote=FALSE, sep="\t") # change to TRUE
+
+##### SIMPLE RPKM NORMALIZATION
+
+rpkmDFeByg <- apply(countDFeByg, 2, function(x) returnRPKM(counts=x, ranges=eByg)) # change to TRUE
+write.table(rpkmDFeByg, "results/rpkmDFeByg.xls", col.names=NA, quote=FALSE, sep="\t")
+rpkmDFeByg[1:4,1:8]
+
+#### ANALYSIS OF DIFFERENTIALLY EXPRESSED GENES (DEGs)
+#### DEG analysis using edgeR
+
+countDF <- read.table("./results/countDFeByg.xls")
+cmp <- readComp(args, format="matrix", delim="-")
+degseqDF <- run_DESeq2(countDF=countDF, targets=targetsin(args), cmp=cmp[[1]], independent=FALSE)
+write.table(degseqDF, "./results/DESeq2comp.xls", quote=FALSE, sep="\t", col.names = NA)
+
+DEG_list2 <- filterDEGs(degDF=degseqDF, filter=c(Fold=2, FDR=20))
+
+
+#### GENE WISE CLUSTERING *********HEATMAP**********
+
+library(pheatmap)
+geneids <- unique(as.character(unlist(DEG_list[[1]])))
+y <- assay(rlog(dds))[geneids, ]
+pdf("./results/heatmap_rlog.pdf")
+pheatmap(y, scale="row", clustering_distance_rows="correlation", clustering_distance_cols="correlation")
+dev.off()
+
+pheatmap(y, scale="row", clustering_distance_rows="correlation", clustering_distance_cols="correlation")
+
 

@@ -13,12 +13,15 @@
 ### the following matrix is an example of a target file
 
 ### first you load the target file from a .txt document
-targetsPE.txt <- read.table("/Users/danido/Documents/709_R_Ecology/Project/target_file.txt", header=F)
+
+targetsPE.txt <- read.table("/lustre/descoba2/Cichla/R_project/target_file.txt", header=F)
 
 ### then you specify targetspath which is the set up for targets file specified by bioconductor
+
 targetspath <- system.file("extdata", "targetsPE.txt", package="systemPipeR")
 
 ### reads the table and creates a data.frame from that specifying the dimensions of the table/
+
 read.delim(targetspath, comment.char = "#")[1:7,1:4]
 
 ### is basically something like this, here in the first two columns you have the names of the forward and reverse reads files
@@ -33,6 +36,17 @@ File_Name1	File_Name2	Sample_Name	Factor
 5_CM29_S37_L006_R1_001_trim_R1.fq.gz	5_CM29_S37_L006_R2_001_trim_R2.fq.gz	CM29	MU
 6_CM16_S38_L006_R1_001_trim_R1.fq.gz	6_CM16_S38_L006_R2_001_trim_R2.fq.gz	CM16	CL
 7_CM17_S39_L006_R1_001_trim_R1.fq.gz	7_CM17_S39_L006_R2_001_trim_R2.fq.gz	CM17	CL
+
+
+###
+#### you can then later set it up for it to make sample comparissons
+
+readLines(targetspath)[1:4]
+
+
+### import comparisson and store them in a list
+
+readComp(file=targetspath, format="vector", delim="-")
 
 
 

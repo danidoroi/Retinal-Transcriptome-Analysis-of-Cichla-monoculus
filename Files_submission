@@ -37,22 +37,6 @@ File_Name1	File_Name2	Sample_Name	Factor
 
 
 
-### to run an R  in the command line in deepthought2, you can type "run_Rscript.sh" this tells the command line to recognizes Rcode as input
-### the .sh file should start like this
-### the ".sh" file should have something like this
 
-#!/bin/bash
-#SBATCH --ntasks=20
-#SBATCH -N 1
-#SBATCH -t 4000:00
-#SBATCH --mem=127000
-
-###  this is the path to my directory where I have the files:
-cd /lustre/descoba2/Cichla/Scripts
-
-### this is to run the Rscript
-/lustre/cichlid-labs/sw/R-3.1.0/bin/Rscript --restore example.R
-
- 
 
 

@@ -23,32 +23,39 @@ system("bowtie2-build O_niloticus_UMD1.fa O_niloticus_UMD1.fa")
 ### systemargs constructs SYSargs S4 class objects from two simple tabilar files: a targets files and a param file defines the parameter
 ### of the command-line software. 
 
+
+
 ### ALIGN ALL FASTQ FILES WITH BOWTIE2/TOPHAT2 
 
 bampaths <- runcCommandline(args=args)
 bamppath
 
 ### ALIGNMENT SUMMARY
-
 ## generate table of read and alignment counts for all samples
 
 read_statsDF <- alignStats(args)
 write.table(read_statsDF, "results/alignStats.xls", row.names=FALSE, quote=FALSE, sep="\t"
 
 ### to show the the sample alignment stat file provided by the systempiper package.
+
 read.table(system.file("extdata", "alignStats.xls", package="systemPipeR"), header=TRUE)[1:7,]
 
+
+
+###****** this can be apart, is not necessary right now?*******
 ##### CREATE SYMBOLIC LINKS FOR VIEWING BAM FILES IN IGV
 
 symLink2bam(sysargs=args, htmldir=c("~/.html/", "somedir/"),
 urlbase="http://myserver.edu/~username/", urlfile="IGVurl.txt"
 
+
+
 ### READ COUNTING
 
-## counting the reads per feature, for this, first we need to store all the GFF/GTF range annotations in a database, 
+### counting the reads per feature, for this, first we need to store all the GFF/GTF range annotations in a database, 
 ### TranscriptDb which then makes many operations more robust and convenient
 ### create txdb
-
+### will we have a gff file form the rpevious step?
 
 library(GenomicFeatures)
 txdb <- makeTxDbFromGFF(file="data/tair10.gff", format="gff", dataSource="TAIR", organism="Oreochromis_niloticus"
@@ -57,6 +64,8 @@ saveDb(txdb, file="O_niloticus_UMD1.sqlite")
 txdb <- loadDb("O_niloticus_UMD1.sqlite")
 eByg <- exonsBy(txdb, by="gene")
 eByg[1:2]
+
+
 
 ### READ COUNTING WITH SUMMARIZEOVERLAPS
 

@@ -22,7 +22,7 @@ targetspath <- system.file("extdata", "targetsPE.txt", package="systemPipeR")
 
 ### reads the table and creates a data.frame from that specifying the dimensions of the table/
 
-read.delim(targetspath, comment.char = "#")[1:7,1:4]
+targetsPE.txt <- read.delim("/lustre/descoba2/Cichla/R_project/target_file.txt", comment.char = "#")
 
 ### is basically something like this, here in the first two columns you have the names of the forward and reverse reads files
 ### then you have the 3 and 4 column to specify the the name of the sample and the treatment in this case named "factor"

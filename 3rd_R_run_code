@@ -6,12 +6,14 @@
 ####
 ####
 
--------------------------------------------------------------------------------------------------------------------------------------
 #### INDEX OF THE REFERENCE GENOME
 
 #### Tilapia genome location ##  cd /lustre/cichlid-labs/reference_assemblies/O_niloticus_UMD1/O_niloticus_UMD1.fa
 #### 
 
+#******************************** R CODE ******************************* 
+-------------------------------------------------------------------------------------------------------------------------------------
+### INDEX THE REFERENCE GENOME
 library(systemPipeR)
 args <- systemArgs(sysma="./param/tophat.param", mytargets="targetsPE.txt")
 moduleload(modules(args)) # Skip if a module system is not available
@@ -25,7 +27,7 @@ system("bowtie2-build O_niloticus_UMD1.fa O_niloticus_UMD1.fa")
 ---------------------------------------------------------------------------------------------------------------------------------------
 
 
-
+#*************************************************
 
 -----------------------------------------------------------------------------------------------------------------------------------
 ### ALIGN ALL FASTQ FILES WITH BOWTIE2/TOPHAT2 

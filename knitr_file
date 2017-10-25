@@ -1,0 +1,154 @@
+Retinal-Transcriptome-Analysis-of-Cichla-monoculus
+=============================================================
+
+We have 7 transcriptomes 
+CM1, CM4, CM16, CM17, CM27, CM28, CM29
+CM1, CM4, CM16 & CM17 are samples from clear waters of Lake Gatun
+CM27, CM28, CM29 are samples from murky waters of Lake Gatun
+
+Now... I have already analyzed the fq files (files with the raw reads), we have checked que quality of the reads with Fastqc and we
+have already trimmed the reads with trimommatic in order to have higher quality. We have forward and reverse (paired-ends reads)
+files from each of the seven samples.
+
+We then want to align these reads files to a reference genome but first we have to specify the "targets" file
+which is the file that contains all the necessary information about the reads files like names, etc.
+the following matrix is an example of a target file
+first you load the target file from a .txt document
+R code
+
+```{r }
+targetsPE <- read.table("/Users/danido/Documents/709_R_Ecology/Project/target_file.txt", header=F)
+```
+
+is basically something like this, here in the first two columns you have the names of the forward and reverse reads files
+then you have the 3 and 4 column to specify the the name of the sample and the treatment in this case named "factor"
+you need the 3 and 4 column so you can do pairwise comparissons later
+
+```{r, eval=FALSE}
+File_Name1	File_Name2	Sample_Name	Factor
+1_CM1_S33_L006_R1_001_trim_R1.fq.gz	1_CM1_S33_L006_R2_001_trim_R2.fq.gz	CM1	CL
+2_CM4_S34_L006_R1_001_trim_R1.fq.gz	2_CM4_S34_L006_R2_001_trim_R2.fq.gz	CM4	CL
+3_CM27_S35_L006_R1_001_trim_R1.fq.gz	3_CM27_S35_L006_R2_001_trim_R2.fq.gz	CM27	MU
+4_CM28_S36_L006_R1_001_trim_R1.fq.gz	4_CM28_S36_L006_R2_001_trim_R2.fq.gz	CM28	MU
+5_CM29_S37_L006_R1_001_trim_R1.fq.gz	5_CM29_S37_L006_R2_001_trim_R2.fq.gz	CM29	MU
+6_CM16_S38_L006_R1_001_trim_R1.fq.gz	6_CM16_S38_L006_R2_001_trim_R2.fq.gz	CM16	CL
+7_CM17_S39_L006_R1_001_trim_R1.fq.gz	7_CM17_S39_L006_R2_001_trim_R2.fq.gz	CM17	CL
+```
+
+### INDEX THE REFERENCE GENOME
+
+```{r, eval=FALSE}
+  library(systemPipeR)
+args <- systemArgs(sysma="./param/tophat.param", mytargets="targetsPE.txt")
+moduleload(modules(args)) # Skip if a module system is not available
+system("bowtie2-build O_niloticus_UMD1.fa O_niloticus_UMD1.fa")
+```
+
+the library systempiper provides utilities for buildingin end-to-end analysis workflows with automated report generation for next generation sequence applications. 
+
+Note that the code above is R code but after "system(" is unix code specifying to use bowtie on the tilapia genome systemargs constructs SYSargs S4 class objects from two simple tabilar files: a targets files and a param file defines the parameter of the command-line software. 
+
+### ALIGN ALL FASTQ FILES WITH BOWTIE2/TOPHAT2 
+
+```{r, eval=FALSE} 
+  bampaths <- runcCommandline(args=args)
+bamppath
+```
+
+
+ALIGNMENT SUMMARY
+
+generate table of read and alignment counts for all samples
+
+```{r, eval=FALSE }   
+read_statsDF <- alignStats(args)
+write.table(read_statsDF, "results/alignStats.xls", row.names=FALSE, quote=FALSE, sep="\t"
+```           
+
+to show the the sample alignment stat file provided by the systempiper package.
+
+```{r, eval=FALSE }             
+read.table(system.file("extdata", "alignStats.xls", package="systemPipeR"), header=TRUE)[1:7,]
+```        
+              
+this can be apart, is not necessary right now?
+
+CREATE SYMBOLIC LINKS FOR VIEWING BAM FILES IN IGV
+
+```{r, , eval=FALSE }                
+symLink2bam(sysargs=args, htmldir=c("~/.html/", "somedir/"),
+urlbase="http://myserver.edu/~username/", urlfile="IGVurl.txt"
+```           
+                            
+### READ COUNTING
+                            
+counting the reads per feature, for this, first we need to store all the GFF/GTF range annotations in a database, 
+TranscriptDb which then makes many operations more robust and convenient
+create txdb
+will we have a gff file form the rpevious step?
+
+```{r, eval=FALSE }                            
+library(GenomicFeatures)
+txdb <- makeTxDbFromGFF(file="data/tair10.gff", format="gff", dataSource="TAIR", organism="Oreochromis_niloticus"
+saveDb(txdb, file="O_niloticus_UMD1.sqlite")
+                                                  
+txdb <- loadDb("O_niloticus_UMD1.sqlite")
+eByg <- exonsBy(txdb, by="gene")
+eByg[1:2]
+```
+
+### READ COUNTING WITH SUMMARIZEOVERLAPS
+
+```{r, eval=FALSE }                                                    
+txdb <- loadDb("O_niloticus_UMD1.sqlite")
+eByg <- exonsBy(txdb, by=c("gene"))
+bfl <- BamFileList(outpaths(args), yieldSize=50000, index=character())
+counteByg <- summarizeOverlaps(eByg, bfl, mode="Union", ignore.strand=TRUE, inter.feature=FALSE, singleEnd=FALSE) # Note: for strand-specific RNA-Seq set 'ignore.strand=FALSE' and for PE data set 'singleEnd=FALSE'
+countDFeByg <- assays(counteByg)$counts
+countDFeByg[1:4,1:18]
+                                                  
+write.table(countDFeByg, "results/countDFeByg.xls", col.names=NA, quote=FALSE, sep="\t") # change to TRUE
+```  
+
+### SIMPLE RPKM NORMALIZATION
+
+```{r, eval=FALSE }                                                    
+rpkmDFeByg <- apply(countDFeByg, 2, function(x) returnRPKM(counts=x, ranges=eByg)) # change to TRUE
+write.table(rpkmDFeByg, "results/rpkmDFeByg.xls", col.names=NA, quote=FALSE, sep="\t")
+```
+                                                    
+### ANALYSIS OF DIFFERENTIALLY EXPRESSED GENES (DEGs)
+
+DEG analysis using deseq
+in order to analyze differential gene expression we should use the package DESEQ2 from bioconductor 
+to install the package. This basically will analyze the transcriptome data and the final product would
+be a differential expression analysis of the samples used in your experiments.
+First I have to download the "DESeq2 package from bioconductor"
+
+```{r, eval=FALSE }
+http:// if https:// URLs are not supported
+source("https://bioconductor.org/biocLite.R")
+biocLite("DESeq2")
+```                                                
+
+```{r, eval=FALSE }                                                   
+countDF <- read.table("./results/countDFeByg.xls")
+cmp <- readComp(args, format="matrix", delim="-")
+degseqDF <- run_DESeq2(countDF=countDF, targets=targetsin(args), cmp=cmp[[1]], independent=FALSE)
+write.table(degseqDF, "./results/DESeq2comp.xls", quote=FALSE, sep="\t", col.names = NA)
+                                                  
+DEG_list2 <- filterDEGs(degDF=degseqDF, filter=c(Fold=2, FDR=20))
+``` 
+
+GENE WISE CLUSTERING  
+
+### HEATMAP
+
+```{r, eval=FALSE }          
+library(pheatmap)
+ geneids <- unique(as.character(unlist(DEG_list[[1]])))
+y <- assay(rlog(dds))[geneids, ]
+pdf("./results/heatmap_rlog.pdf")
+pheatmap(y, scale="row", clustering_distance_rows="correlation", clustering_distance_cols="correlation")
+dev.off()
+```                                                  
